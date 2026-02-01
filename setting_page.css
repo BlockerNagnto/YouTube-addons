@@ -1,0 +1,65 @@
+@charset "UTF-8";
+
+:root {
+  --bg: #0f0f0f;
+  --card: #1e1e1e;
+  --text: #ffffff;
+  --dim: #aaaaaa;
+  --border: #333333;
+  --red: #cc0000;
+}
+
+body {
+  margin: 0; padding: 10px;
+  background-color: var(--bg); color: var(--text);
+  font-family: "Roboto", Arial, sans-serif;
+}
+
+/* 佈局適配 */
+@media screen and (max-width: 500px) {
+  body { width: 320px; }
+  .addon-item { padding: 12px; }
+  .settings-footer { display: none; }
+}
+@media screen and (min-width: 501px) {
+  body { width: 600px; margin: 50px auto; }
+  .addon-item { padding: 20px; margin-bottom: 12px; }
+  .addon-name { font-size: 18px; font-weight: bold; }
+}
+
+#title { margin-bottom: 20px; border-left: 4px solid var(--red); padding-left: 10px; }
+
+.addon-item {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.addon-info { flex: 1; }
+.addon-desc { color: var(--dim); font-size: 13px; margin-top: 5px; }
+
+/* Switch */
+.switch { position: relative; width: 40px; height: 22px; }
+.switch input { display: none; }
+.slider {
+  position: absolute; cursor: pointer; inset: 0;
+  background: #333; border-radius: 22px; transition: .3s;
+}
+.slider:before {
+  position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
+  background: #fff; border-radius: 50%; transition: .3s;
+}
+input:checked + .slider { background: var(--red); }
+input:checked + .slider:before { transform: translateX(18px); }
+
+/* Buttons */
+.settings-footer {
+  margin-top: 30px; display: flex; gap: 15px;
+  border-top: 1px solid var(--border); padding-top: 20px;
+}
+button {
+  flex: 1; padding: 12px; background: #2a2a2a; color: white;
+  border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
+  font-size: 14px;
+}
+button:hover { background: #333; border-color: #555; }
