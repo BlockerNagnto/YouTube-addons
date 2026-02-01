@@ -76,6 +76,7 @@ body {
     cursor: pointer;
     color: white;
     transition: transform 0.1s ease, filter 0.2s;
+    margin-top:10px;
 }
 
 .btn-play {
