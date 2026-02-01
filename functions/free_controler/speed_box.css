@@ -1,0 +1,48 @@
+#yt-speed-panel {
+    position: relative;
+    width: 100%;
+    margin-top: auto; 
+    background: #000; 
+    border: 2px solid #f00;
+    border-radius: 15px;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start; 
+    gap: 5px; 
+    box-sizing: border-box;
+}
+
+.speed-btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    flex: 1; /* 佔據左側剩餘空間 */
+}
+
+.spd-btn {
+    background: #222;
+    color: #fff;
+    border: 1px solid #444;
+    cursor: pointer;
+    height: 30px;
+    padding: 0 12px;
+    font-size: 13px;
+    border-radius: 15px; 
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.spd-btn:hover {
+    background: #444;
+    border-color: #f00;
+}
+
+/* 快捷按鈕 (右側：獨立出來) */
+#spd-shortcut-toggle {
+    background: #333;
+    border: 1px solid #f00;
+        margin-left: 0; 
+}
+

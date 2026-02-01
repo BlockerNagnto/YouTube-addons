@@ -1,0 +1,47 @@
+/* 確保父層導覽列提供定位基準 */
+ytmusic-nav-bar {
+    position: relative;
+}
+
+/* 確保 Logo 容器不被擠壓 */
+ytmusic-logo {
+    display: flex;
+    align-items: center;
+    min-width: 120px;
+    flex: none;
+}
+
+/* 在左上角 Logo 位置的按鈕 */
+#free-ctrl-btn {
+    position: absolute;
+    left: 65px;
+    /* 位移 */
+    top: 50%;
+    transform: translateY(-50%);
+
+    background: #ff0000;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+    border-radius: 14px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 9999;
+
+    white-space: nowrap;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    transition: all 0.1s;
+}
+
+#free-ctrl-btn:hover {
+    background: #940000;
+}
+
+#free-ctrl-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
