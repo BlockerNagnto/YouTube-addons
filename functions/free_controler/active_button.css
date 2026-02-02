@@ -27,7 +27,7 @@ ytmusic-logo {
     font-size: 12px;
     font-weight: bold;
     cursor: pointer;
-    z-index: 9999;
+    z-index: 15000;
 
     white-space: nowrap;
     height: 28px;

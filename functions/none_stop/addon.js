@@ -3,33 +3,57 @@
     if (window[`__loaded_${addonName}`]) return;
     window[`__loaded_${addonName}`] = true;
 
+    /**
+     * 偵測 YT Music 或 YouTube 的「影片已暫停」彈窗按鈕
+     */
+    const getConfirmButton = () => {
+        // 優先匹配你提供的 ytmusic-you-there-renderer 結構
+        // 包含一般 YouTube 的確認按鈕與 YouTube Music 特有的按鈕路徑
+        return document.querySelector(
+            'ytmusic-you-there-renderer yt-button-renderer#button, ' +
+            'ytmusic-you-there-renderer .actions yt-button-renderer, ' + 
+            'yt-confirm-dialog-renderer #confirm-button, ' +
+            '#confirm-button.yt-button-renderer'
+        );
+    };
+
     const isInterrupting = () => {
-        // 增加對彈窗「按鈕」的直接偵測，這是最準確的
-        const confirmBtn = document.querySelector('ytmusic-confirm-dialog-renderer #confirm-button, yt-confirm-dialog-renderer #confirm-button, .ytmusic-you-there-renderer #button');
-        return !!(confirmBtn && confirmBtn.offsetHeight > 0);
+        const btn = getConfirmButton();
+        // 確保按鈕存在且在畫面上可見 (offsetHeight > 0)
+        return !!(btn && (btn.offsetWidth > 0 || btn.offsetHeight > 0));
     };
 
     const forcePlay = () => {
         const video = document.querySelector('video');
         if (!video) return;
 
-        // 核心邏輯：如果是暫停狀態 且 畫面上出現了確認彈窗
+        // 當影片暫停且偵測到中斷彈窗時執行
         if (video.paused && isInterrupting()) {
-            console.log(`[${addonName}] 偵測到 YouTube 停頓彈窗，自動恢復中...`);
+            const btn = getConfirmButton();
             
-            // 嘗試點擊確認按鈕 (這比單純 video.play() 更能徹底關閉彈窗)
-            const btn = document.querySelector('ytmusic-confirm-dialog-renderer #confirm-button, yt-confirm-dialog-renderer #confirm-button');
-            if (btn) btn.click();
+            // 優先透過模擬點擊按鈕來解除彈窗狀態
+            if (btn) {
+                const clickTarget = btn.querySelector('button') || btn;
+                clickTarget.click();
+            }
 
-            // 補償性播放
+            // 補償性播放：確保彈窗關閉後影片恢復執行
             setTimeout(() => {
-                if (video.paused) video.play().catch(() => {
-                    window.dispatchEvent(new Event('keydown', { keyCode: 32 }));
-                });
-            }, 500);
+                if (video.paused) {
+                    video.play().catch(() => {
+                        // 若被瀏覽器阻擋，嘗試觸發空白鍵事件
+                        window.dispatchEvent(new KeyboardEvent('keydown', { 
+                            bubbles: true, 
+                            cancelable: true, 
+                            keyCode: 32, 
+                            which: 32 
+                        }));
+                    });
+                }
+            }, 300);
         }
     };
 
-    // 巡檢頻率提高到 3 秒，因為彈窗出現後應儘速處理
-    setInterval(forcePlay, 3000);
+    // 提高巡檢頻率至 2 秒，以確保聽歌體驗不間斷
+    setInterval(forcePlay, 2000);
 })();

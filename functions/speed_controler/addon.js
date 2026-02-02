@@ -1,4 +1,4 @@
-(function() {
+(function () {
     const folder = "speed_controler";
     const lastKey = 'yt-last-non-1';
     let last = localStorage.getItem(lastKey) || "5";
@@ -6,7 +6,7 @@
 
     const isRemote = window.name === 'FreeControlerPanel';
     const getTargetDoc = () => isRemote ? window.opener.document : document;
-    
+
     if (isRemote) document.body.setAttribute('name', 'FreeControlerPanel');
 
     const getTargetVideo = () => {
@@ -31,15 +31,59 @@
 
     // 圓形懸浮球 (僅 YouTube 模式)
     if (!isRemote) {
+        const iconx = 32, icony = 40;
         const toggleBtn = document.createElement('button');
         toggleBtn.id = 'yt-speed-toggle';
         const svgNS = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(svgNS, "svg");
-        svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("width", "24"); svg.setAttribute("height", "24");
-        const path = document.createElementNS(svgNS, "path");
-        path.setAttribute("d", "M13 10V4.5C13 3.67 12.33 3 11.5 3S10 3.67 10 4.5V11L11.5 12.5L13 11M19.73 14.58L21 13.31C20.45 12.76 19.85 12.26 19.22 11.82L18.17 13.12C18.72 13.56 19.24 14.05 19.73 14.58M4.27 14.58C4.76 14.05 5.28 13.56 5.83 13.12L4.78 11.82C4.15 12.26 3.55 12.76 3 13.31L4.27 14.58M7.06 8.3L6 7.25C5.08 8.17 4.25 9.18 3.55 10.28L4.85 11.1C5.46 10.1 6.21 9.15 7.06 8.3M19.15 11.1L20.45 10.28C19.75 9.18 18.92 8.17 18 7.25L16.94 8.3C17.79 9.15 18.54 10.1 19.15 11.1Z");
-        path.setAttribute("fill", "currentColor"); svg.appendChild(path); toggleBtn.appendChild(svg);
-        
+        svg.setAttribute("viewBox", "0 0 64 64");
+        svg.setAttribute("width", "64");
+        svg.setAttribute("height", "64");
+
+        // 1. 儀表板白色半圓弧 (中心 32,40)
+        const gauge = document.createElementNS(svgNS, "path");
+        gauge.setAttribute("d", `M 12 40 A 20 20 0 0 1 52 40`);
+        gauge.setAttribute("fill", "none");
+        gauge.setAttribute("stroke", "#ffffff");
+        gauge.setAttribute("stroke-width", "2.5");
+        svg.appendChild(gauge);
+
+        // 2. 17 條等粗白色刻度線
+        for (let i = 0; i <= 16; i++) {
+            const line = document.createElementNS(svgNS, "line");
+            const ang = Math.PI + (i * (Math.PI / 16));
+            const rOuter = 20;
+            const rInner = 14;
+            line.setAttribute("x1", (32 + rOuter * Math.cos(ang)).toFixed(2));
+            line.setAttribute("y1", (40 + rOuter * Math.sin(ang)).toFixed(2));
+            line.setAttribute("x2", (32 + rInner * Math.cos(ang)).toFixed(2));
+            line.setAttribute("y2", (40 + rInner * Math.sin(ang)).toFixed(2));
+            line.setAttribute("stroke", "#fff");
+            line.setAttribute("stroke-width", "2.5");
+            svg.appendChild(line);
+        }
+
+        // 3. 白色中心圓點
+        const centerCircle = document.createElementNS(svgNS, "circle");
+        centerCircle.setAttribute("cx", "32");
+        centerCircle.setAttribute("cy", "40");
+        centerCircle.setAttribute("r", "3.5");
+        centerCircle.setAttribute("fill", "#fff");
+        svg.appendChild(centerCircle);
+
+        // 4. 白色指針 (不再頂天)
+        const needle = document.createElementNS(svgNS, "path");
+        needle.id = "spd-gauge-needle";
+        needle.setAttribute("d", "M 32 40 L 32 18");
+        needle.setAttribute("stroke", "#fff");
+        needle.setAttribute("stroke-width", "3.5");
+        needle.setAttribute("stroke-linecap", "round");
+        needle.style.transformOrigin = "32px 40px";
+        needle.style.transition = "transform 0.15s ease-out";
+        svg.appendChild(needle);
+
+        toggleBtn.appendChild(svg);
+
         let isDragging = false, moved = false, startX, startY, offsetX, offsetY;
         toggleBtn.onmousedown = (e) => {
             isDragging = true; moved = false;
@@ -82,7 +126,7 @@
     const btnL = document.createElement('button');
     btnL.className = 'spd-btn';
     btnL.id = 'spd-shortcut-toggle';
-    
+
     // 獨立的速度盒，用來放紅框
     const speedBox = document.createElement('div');
     speedBox.id = 'yt-speed-box';
@@ -120,7 +164,13 @@
             bO.textContent = (cur === 1) ? `${saved}x` : '1x';
             bO.onclick = () => apply(cur === 1 ? saved : 1);
         }
-
+        // 更新指針角度：0x 對應 -90deg，16x 對應 90deg
+        const ndl = document.getElementById('spd-gauge-needle');
+        if (ndl && v) {
+            const rate = Math.min(Math.max(v.playbackRate, 0), 16);
+            const deg = (rate * (180 / 16)) - 90;
+            ndl.style.transform = `rotate(${deg}deg)`;
+        }
         if (v && v.readyState >= 1) {
             const activeVid = v.src || "";
             if (v.dataset.lastVid !== activeVid) { window.yt_speed_init = false; v.dataset.lastVid = activeVid; }

@@ -4,6 +4,7 @@
     left: 165px;
     z-index: 20000;
     height: 40px;
+    gap: 0px;
 }
 
 #yt-speed-box {
@@ -25,8 +26,7 @@
 }
 
 #yt-speed-toggle {
-    width: 36px;
-    height: 36px;
+    width: 50px;
     border-radius: 50%;
     background: #f00;
     color: #fff;
