@@ -59,7 +59,7 @@
                         });
 
                         // 3. 注入速度控制 JS (從 speed_controler 讀取)
-                        fetch(speedBase + 'remote.js').then(r => r.text()).then(code => {
+                        fetch(speedBase + 'addon.js').then(r => r.text()).then(code => {
                             const s = winDoc.createElement('script');
                             s.textContent = policy.createScript(code);
                             winDoc.head.appendChild(s);

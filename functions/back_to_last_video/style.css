@@ -1,0 +1,23 @@
+#addon-resume-container {
+    display: inline-flex !important;
+    align-items: center;
+    margin-left: 15px;
+    padding: 0 12px;
+    height: 32px;
+    background: #272727;
+    border: 1px solid #3ea6ff;
+    border-radius: 16px;
+    color: #3ea6ff;
+    font-size: 12px;
+    text-decoration: none !important;
+    white-space: nowrap;
+    cursor: pointer;
+    z-index: 2000;
+}
+.resume-label {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0 6px;
+    font-weight: bold;
+}

@@ -1,0 +1,54 @@
+#yt-speed-panel {
+    position: fixed;
+    top: 15px;
+    left: 165px;
+    z-index: 20000;
+    height: 40px;
+}
+
+#yt-speed-box {
+    display: flex;
+    align-items: center;
+    background: #000;
+    border: 2px solid #f00;
+    padding: 5px;
+    margin-left: 10px;
+    gap: 0px;
+    transition: clip-path 0.3s ease-in-out;
+    clip-path: inset(0 0 0 0);
+}
+
+/* 預設收合 */
+#yt-speed-panel.collapsed #yt-speed-box {
+    clip-path: inset(0 100% 0 0);
+    pointer-events: none;
+}
+
+#yt-speed-toggle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #f00;
+    color: #fff;
+    border: none;
+    cursor: move;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+#spd-shortcut-toggle {
+    margin-left: 15px;
+}
+
+.spd-btn {
+    background: #333;
+    color: #fff;
+    border: 1px solid #555;
+    cursor: pointer;
+    height: 30px;
+    padding: 0 10px;
+    font-size: 13px;
+    border-radius: 0;
+}

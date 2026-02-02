@@ -1,0 +1,17 @@
+{
+   "content_scripts": [ {
+      "js": [ "scripts.js" ],
+      "matches": [ "https://www.youtube.com/*" ],
+      "run_at": "document_end"
+   }, {
+      "js": [ "test.js" ],
+      "matches": [ "https://music.youtube.com/*" ],
+      "run_at": "document_end"
+   } ],
+   "description": "Auto click YouTube content warning.",
+   "manifest_version": 3,
+   "name": "No Content Warning",
+   "options_page": "options.html",
+   "permissions": [ "storage" ],
+   "version": "3.0.3"
+}
