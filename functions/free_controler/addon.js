@@ -12,73 +12,104 @@
     }
 
     const openPanel = () => {
-        const win = window.open('', 'FreeControlerPanel', 'width=416,height=212');
+        const win = window.open('', 'FreeControlerPanel', 'width=416,height=292');
         if (!win) return;
-        win.resizeTo(416, 292);
-        fetch(basePath + 'control_panel.html')
-            .then(r => r.text())
-            .then(htmlString => {
-                const winDoc = win.document;
-                winDoc.body.textContent = "";
-                const parser = new DOMParser();
-                const docParsed = parser.parseFromString(htmlString, 'text/html');
-                Array.from(docParsed.body.childNodes).forEach(node => winDoc.body.appendChild(winDoc.importNode(node, true)));
+        const winDoc = win.document;
 
-                // 1. 載入遙控器主樣式
-                if (!winDoc.getElementById('panel-style')) {
-                    const link = winDoc.createElement('link');
-                    link.id = 'panel-style';
-                    link.rel = 'stylesheet';
-                    link.href = basePath + 'control_panel.css';
-                    winDoc.head.appendChild(link);
-                }
+        // --- Trusted Types 安全策略建立 ---
+        let policy = { createScript: (s) => s, createHTML: (h) => h };
+        if (win.trustedTypes?.createPolicy) {
+            try { 
+                policy = win.trustedTypes.createPolicy('yt-fix-final', { 
+                    createScript: (s) => s,
+                    createHTML: (h) => h 
+                }); 
+            } catch (e) { console.error("Policy creation failed", e); }
+        }
 
-                const check = setInterval(() => {
-                    const shell = winDoc.getElementById('remote-shell');
-                    if (shell) {
-                        clearInterval(check);
-                        
-                        const pBtn = winDoc.getElementById('play-btn');
-                        const sBtn = winDoc.getElementById('pause-btn');
-                        pBtn.onclick = () => document.querySelector('video')?.play();
-                        sBtn.onclick = () => document.querySelector('video')?.pause();
+        // --- 安全地建立 DOM 結構，完全不使用 innerHTML ---
+        if (!winDoc.getElementById('remote-shell')) {
+            winDoc.body.style.cssText = "margin:0; padding:0; background:#121212; color:white; overflow:hidden;";
+            
+            const shell = winDoc.createElement('div');
+            shell.id = 'remote-shell';
+            shell.className = 'remote-body'; // 對應 control_panel.css
+            
+            const infoDisplay = winDoc.createElement('div');
+            infoDisplay.id = 'info-display';
+            
+            const tName = winDoc.createElement('div');
+            tName.id = 'track-name';
+            tName.textContent = '載入中...';
+            
+            const tTime = winDoc.createElement('div');
+            tTime.id = 'track-time';
+            tTime.textContent = '0:00 / 0:00';
+            
+            infoDisplay.append(tName, tTime);
 
-                        // Trusted Types 處理
-                        let policy = { createScript: (s) => s };
-                        if (win.trustedTypes?.createPolicy) {
-                            try { policy = win.trustedTypes.createPolicy('yt-fix-final', { createScript: (s) => s }); } catch (e) {}
-                        }
+            const btnGroup = winDoc.createElement('div');
+            btnGroup.className = 'btn-group';
+            
+            const pBtn = winDoc.createElement('button');
+            pBtn.id = 'play-btn';
+            pBtn.className = 'ctrl-btn btn-play';
+            pBtn.textContent = '▶ PLAY';
+            pBtn.onclick = () => document.querySelector('video')?.play();
+            
+            const sBtn = winDoc.createElement('button');
+            sBtn.id = 'pause-btn';
+            sBtn.className = 'ctrl-btn btn-pause';
+            sBtn.textContent = '|| PAUSE';
+            sBtn.onclick = () => document.querySelector('video')?.pause();
+            
+            btnGroup.append(pBtn, sBtn);
+            shell.append(infoDisplay, btnGroup);
+            winDoc.body.appendChild(shell);
+        }
 
-                        const speedBase = basePath.replace('free_controler', 'speed_controler');
+        // 1. 載入遙控器主樣式
+        if (!winDoc.getElementById('panel-style')) {
+            const link = winDoc.createElement('link');
+            link.id = 'panel-style';
+            link.rel = 'stylesheet';
+            link.href = basePath + 'control_panel.css';
+            winDoc.head.appendChild(link);
+        }
 
-                        // 2. 載入遙控器專用的 speed_box.css (從 free_controler 讀取)
-                        fetch(basePath + 'speed_box.css').then(r => r.text()).then(css => {
-                            const style = winDoc.createElement('style');
-                            style.textContent = css;
-                            winDoc.head.appendChild(style);
-                        });
+        const check = setInterval(() => {
+            const shell = winDoc.getElementById('remote-shell');
+            if (shell) {
+                clearInterval(check);
+                
+                const speedBase = basePath.replace('free_controler', 'speed_controler');
 
-                        // 3. 注入速度控制 JS (從 speed_controler 讀取)
-                        fetch(speedBase + 'addon.js').then(r => r.text()).then(code => {
-                            const s = winDoc.createElement('script');
-                            s.textContent = policy.createScript(code);
-                            winDoc.head.appendChild(s);
-                        });
+                // 2. 載入樣式
+                fetch(basePath + 'speed_box.css').then(r => r.text()).then(css => {
+                    const style = winDoc.createElement('style');
+                    style.textContent = css;
+                    winDoc.head.appendChild(style);
+                });
 
-                        // 4. 定時更新遙控器狀態
-                        setInterval(() => {
-                            // 修正：鎖定主視窗目前活動影片
-                            const v = document.querySelector('ytd-reel-video-renderer[is-active] video') || document.querySelector('video');
-                            if (!v) return;
-                            const tName = winDoc.getElementById('track-name'), tTime = winDoc.getElementById('track-time');
-                            const fmt = (s) => (isNaN(s) || !isFinite(s)) ? '0:00' : `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
-                            if (tTime) tTime.textContent = `${fmt(v.currentTime)} / ${fmt(v.duration)}`;
-                            const title = navigator.mediaSession?.metadata?.title || '未在播放';
-                            if (tName) tName.textContent = title.trim();
-                        }, 1000);
-                    }
-                }, 100);
-            });
+                // 3. 注入速度控制 JS (使用 Trusted Types 安全路徑)
+                fetch(speedBase + 'addon.js').then(r => r.text()).then(code => {
+                    const s = winDoc.createElement('script');
+                    s.textContent = policy.createScript(code);
+                    winDoc.head.appendChild(s);
+                });
+
+                // 4. 定時更新遙控器狀態
+                setInterval(() => {
+                    const v = document.querySelector('ytd-reel-video-renderer[is-active] video') || document.querySelector('video');
+                    if (!v) return;
+                    const tName = winDoc.getElementById('track-name'), tTime = winDoc.getElementById('track-time');
+                    const fmt = (s) => (isNaN(s) || !isFinite(s)) ? '0:00' : `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
+                    if (tTime) tTime.textContent = `${fmt(v.currentTime)} / ${fmt(v.duration)}`;
+                    const title = navigator.mediaSession?.metadata?.title || '未在播放';
+                    if (tName) tName.textContent = title.trim();
+                }, 1000);
+            }
+        }, 100);
     };
 
     setInterval(() => {
