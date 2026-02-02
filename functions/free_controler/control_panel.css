@@ -4,50 +4,52 @@ body {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    /* 徹底禁止捲軸 */
     height: 100%;
 }
 
 .remote-body {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column; /* 讓內容由上而下排列 */
     height: 100vh;
     font-family: sans-serif;
 }
 
 #remote-shell {
+    display: flex;
+    flex-direction: column;
     height: 100%;
     background: #1e1e1e;
     border: 3px solid #333;
     border-radius: 20px;
     padding: 20px;
-    text-align: center;
     box-sizing: border-box;
     gap: 15px;
 }
 
-/* 歌曲資訊區塊：名字左、時間右 */
+/* 歌曲資訊區塊：橫拉滿格，左右分布 */
 #info-display {
-    height: 20px;
+    width: 100%; /* 強制滿格 */
+    height: 40px;
     background: #121212;
-    padding: 10px 15px;
+    padding: 0 15px;
     border-radius: 10px;
     border: 1px solid #333;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-sizing: border-box;
 }
 
 #track-name {
     font-size: 14px;
     color: #00c853;
     font-weight: bold;
-    flex: 1;
+    flex: 1; /* 佔據左側所有剩餘空間 */
     text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    margin-right: 10px;
 }
 
 #track-time {
@@ -55,20 +57,21 @@ body {
     color: #aaa;
     white-space: nowrap;
     text-align: right;
+    flex-shrink: 0; /* 防止時間被壓縮 */
 }
 
+/* 按鈕群：橫拉滿格 */
 .btn-group {
     display: flex;
+    width: 100%; /* 強制滿格 */
     gap: 10px;
+    margin-top: 10px;
 }
 
-/* 遙控器按鈕樣式 */
+/* 遙控器按鈕樣式：平分空間 */
 .ctrl-btn {
-    flex-wrap: nowrap;
-    min-width: 100px;
-    display: block;
-    width: 100%;
-    height: 40px;
+    flex: 1; /* 讓兩個按鈕平均分配寬度，實現填滿左右的效果 */
+    height: 50px; /* 稍微加高，更有遙控器質感 */
     border: none;
     border-radius: 15px;
     font-size: 18px;
@@ -76,7 +79,6 @@ body {
     cursor: pointer;
     color: white;
     transition: transform 0.1s ease, filter 0.2s;
-    margin-top:10px;
 }
 
 .btn-play {
@@ -96,10 +98,10 @@ body {
 }
 
 .ctrl-btn:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
 }
 
 .ctrl-btn:active {
-    transform: scale(0.92);
+    transform: scale(0.95);
     filter: brightness(1.2);
 }
