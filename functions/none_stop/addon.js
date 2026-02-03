@@ -1,59 +1,162 @@
 (function() {
-    const addonName = 'youtube_nonstop';
-    if (window[`__loaded_${addonName}`]) return;
-    window[`__loaded_${addonName}`] = true;
+  const tag = '[Youtube NonStop]';
+  const isYoutubeMusic = window.location.hostname === 'music.youtube.com';
 
-    /**
-     * 偵測 YT Music 或 YouTube 的「影片已暫停」彈窗按鈕
-     */
-    const getConfirmButton = () => {
-        // 優先匹配你提供的 ytmusic-you-there-renderer 結構
-        // 包含一般 YouTube 的確認按鈕與 YouTube Music 特有的按鈕路徑
-        return document.querySelector(
-            'ytmusic-you-there-renderer yt-button-renderer#button, ' +
-            'ytmusic-you-there-renderer .actions yt-button-renderer, ' + 
-            'yt-confirm-dialog-renderer #confirm-button, ' +
-            '#confirm-button.yt-button-renderer'
-        );
+  const popupEventNodename = isYoutubeMusic ? 'YTMUSIC-YOU-THERE-RENDERER' : 'YT-CONFIRM-DIALOG-RENDERER';
+
+  const MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+  let appObserver = null;
+  const appName = isYoutubeMusic ? 'ytmusic-app' : 'ytd-app';
+  const popupContainer = isYoutubeMusic ? 'ytmusic-popup-container' : 'ytd-popup-container';
+
+  let pauseRequested = false;
+  let pauseRequestedTimeout;
+  const pauseRequestedTimeoutMillis = 5000;
+  const idleTimeoutMillis = 5000;
+  let lastInteractionTime = new Date().getTime();
+
+  let videoElement = null;
+
+  function log(message) {
+    console.log(`${tag}[${getTimestamp()}] ${message}`);
+  }
+
+  function debug(message) {
+    console.debug(`${tag}[${getTimestamp()}] ${message}`);
+  }
+
+  function asDoubleDigit(value) {
+    return value < 10 ? '0' + value : value;
+  }
+
+  function getTimestamp() {
+    let dt = new Date();
+    let time = asDoubleDigit(dt.getHours()) + ':' + asDoubleDigit(dt.getMinutes()) + ':' + asDoubleDigit(dt.getSeconds());
+    return time;
+  }
+
+  function isIdle() {
+    return getIdleTime() >= idleTimeoutMillis;
+  }
+
+  function getIdleTime() {
+    return new Date().getTime() - lastInteractionTime;
+  }
+
+  function listenForMediaKeys() {
+    if (navigator.mediaSession === undefined) {
+      log("Your browser doesn't seem to support navigator.mediaSession yet :/");
+      return;
+    }
+    debug('Listening to "pause" media key...');
+    navigator.mediaSession.setActionHandler('pause', () => {
+      debug('Paused due to [media key pause]');
+      pauseVideo();
+    });
+    navigator.mediaSession.yns_setActionHandler = navigator.mediaSession.setActionHandler;
+    navigator.mediaSession.setActionHandler = (action, fn) => {
+      if (action === 'pause') {
+        debug("Blocked attempt to override media key 'pause' action");
+        return;
+      }
+      navigator.mediaSession.yns_setActionHandler(action, fn);
     };
+  }
 
-    const isInterrupting = () => {
-        const btn = getConfirmButton();
-        // 確保按鈕存在且在畫面上可見 (offsetHeight > 0)
-        return !!(btn && (btn.offsetWidth > 0 || btn.offsetHeight > 0));
+  function listenForMouse() {
+    const eventName = window.PointerEvent ? 'pointer' : 'mouse';
+    debug(`Using ${eventName} events`);
+    document.addEventListener(eventName + 'down', (e) => {
+      processInteraction(eventName + 'down');
+    });
+
+    document.addEventListener(eventName + 'up', (e) => {
+      processInteraction(eventName + 'up');
+    });
+  }
+
+  function listenForKeyboard() {
+    document.addEventListener('keydown', (e) => {
+      processInteraction('keydown');
+    });
+
+    document.addEventListener('keyup', (e) => {
+      processInteraction('keyup');
+    });
+  }
+
+  function processInteraction(action) {
+    if (pauseRequested) {
+      debug(`Paused due to [${action}]`);
+      pauseVideo();
+      return;
+    }
+    lastInteractionTime = new Date().getTime();
+  }
+
+  function observeApp() {
+    debug(`Observing ${appName}...`);
+    appObserver = new MutationObserver((mutations, observer) => {
+      overrideVideoPause();
+    });
+
+    appObserver.observe(document.querySelector(appName), {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  function listenForPopupEvent() {
+    debug('Listening for popup event...');
+    document.addEventListener('yt-popup-opened', (e) => {
+      if (isIdle() && e.detail.nodeName === popupEventNodename) {
+        debug('[closing popup]');
+        document.querySelector(popupContainer).click();
+        pauseVideo();
+        videoElement.play();
+      }
+    });
+  }
+
+  function overrideVideoPause() {
+    if (videoElement?.yns_pause !== undefined) return;
+    if (document.querySelector('video') === null) return;
+
+    videoElement = document.querySelector('video');
+    listenForMediaKeys();
+    debug('Overriding video pause...');
+    videoElement.yns_pause = videoElement.pause;
+    videoElement.pause = () => {
+      debug('Video pause requested');
+      if (!isIdle()) {
+        debug('Paused due to [pause]');
+        pauseVideo();
+        return;
+      }
+      pauseRequested = true;
+      setPauseRequestedTimeout();
     };
+  }
 
-    const forcePlay = () => {
-        const video = document.querySelector('video');
-        if (!video) return;
+  function setPauseRequestedTimeout(justClear = false) {
+    clearTimeout(pauseRequestedTimeout);
+    if (justClear) return;
+    pauseRequestedTimeout = setTimeout(() => {
+      pauseRequested = false;
+    }, pauseRequestedTimeoutMillis);
+  }
 
-        // 當影片暫停且偵測到中斷彈窗時執行
-        if (video.paused && isInterrupting()) {
-            const btn = getConfirmButton();
-            
-            // 優先透過模擬點擊按鈕來解除彈窗狀態
-            if (btn) {
-                const clickTarget = btn.querySelector('button') || btn;
-                clickTarget.click();
-            }
+  function pauseVideo() {
+    videoElement?.yns_pause();
+    pauseRequested = false;
+    setPauseRequestedTimeout(true);
+  }
 
-            // 補償性播放：確保彈窗關閉後影片恢復執行
-            setTimeout(() => {
-                if (video.paused) {
-                    video.play().catch(() => {
-                        // 若被瀏覽器阻擋，嘗試觸發空白鍵事件
-                        window.dispatchEvent(new KeyboardEvent('keydown', { 
-                            bubbles: true, 
-                            cancelable: true, 
-                            keyCode: 32, 
-                            which: 32 
-                        }));
-                    });
-                }
-            }, 300);
-        }
-    };
+  listenForMouse();
+  listenForKeyboard();
 
-    // 提高巡檢頻率至 2 秒，以確保聽歌體驗不間斷
-    setInterval(forcePlay, 2000);
+  listenForPopupEvent();
+  observeApp();
+
+  log(`Monitoring YouTube ${isYoutubeMusic ? 'Music ' : ''}for 'Confirm watching?' action...`);
 })();
