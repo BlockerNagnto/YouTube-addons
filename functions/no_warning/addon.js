@@ -5,13 +5,14 @@
 (function() {
     let video = null;
     let timer = null;
+    const addonname="no warning";
     const mutationConfig = { attributes: true, childList: true, subtree: true };
 
     // 處理影片結束或來源變更
     const videoEnded = function (mutationList, observer) {
         for (const mutation of mutationList) {
             if (mutation.type === "attributes" && mutation.attributeName === "src") {
-                console.log("[AutoConfirm] 影片來源已變更，重新啟動監測");
+                console.log(`[${addonname}] 影片來源已變更，重新啟動監測`);
                 observer.disconnect();
                 startTimer();
                 return;
@@ -43,7 +44,7 @@
         );
 
         if (confirmBtn) {
-            console.log("[AutoConfirm] 偵測到警告按鈕，執行點擊...");
+            console.log(`[${addonname}]  偵測到警告按鈕，執行點擊...`);
             confirmBtn.click();
             
             // 點擊後短暫觀察，若無效則使用 bpctr 備案
@@ -59,7 +60,7 @@
     const applyBpctrFix = function() {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get("bpctr") !== "9999999999") {
-            console.log("[AutoConfirm] 嘗試透過 URL 參數繞過限制");
+            console.log(`[${addonname}]  嘗試透過 URL 參數繞過限制`);
             urlParams.set("bpctr", "9999999999");
             window.location.search = urlParams.toString();
         }
