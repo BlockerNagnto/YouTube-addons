@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const tag = '[Youtube NonStop]';
   const isYoutubeMusic = window.location.hostname === 'music.youtube.com';
 
@@ -95,15 +95,30 @@
   }
 
   function observeApp() {
+    const target = document.querySelector(appName);
+
+    // [SPA 巡檢機制] 如果找不到目標元素 (可能是 ytmusic-app)，等 500ms 再試一次
+    if (!target) {
+      debug(`${appName} not found, retrying...`);
+      setTimeout(observeApp, 500);
+      return;
+    }
+
     debug(`Observing ${appName}...`);
-    appObserver = new MutationObserver((mutations, observer) => {
+    appObserver = new MutationObserver((mutations) => {
+      // 確保執行環境依然正確
       overrideVideoPause();
     });
 
-    appObserver.observe(document.querySelector(appName), {
-      childList: true,
-      subtree: true
-    });
+    try {
+      appObserver.observe(target, {
+        childList: true,
+        subtree: true
+      });
+    } catch (e) {
+      console.error(`[${tag}] Failed to start observer on ${appName}:`, e);
+      setTimeout(observeApp, 1000); // 失敗了也再嘗試一次
+    }
   }
 
   function listenForPopupEvent() {

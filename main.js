@@ -1,71 +1,54 @@
-async function initializeAddons() {
-  // 檢查環境，防止在非 extension 環境報錯
-  if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.getURL) {
-    return;
-  }
-
+async function initializeMainLoader() {
   try {
-    console.log('[YouTube addons] loading...');
+    console.log('[YouTube addons] loading addons in MAIN world...');
 
-    const defaultAddons = ["speed_controler", "list_auto", "no_warning", "none_stop", "free_controler"];
-    const storage = await chrome.storage.local.get('enabled_addons');
-    let enabledList = storage.enabled_addons || defaultAddons;
+    let retry = 0;
+    while (!(document.documentElement.dataset.enabledAddons && document.documentElement.dataset.extensionBaseUrl) && retry < 100) {
+      await new Promise(r => setTimeout(r, 10));
+      retry++;
+    }
 
-    // Trusted Types 處理
+    const enabledList = JSON.parse(document.documentElement.dataset.enabledAddons || "[]");
+    const baseUrl = document.documentElement.dataset.extensionBaseUrl;
+
+    if (!baseUrl) {
+      console.warn('[main.js] No enabled addons found from isolated.js');
+      return;
+    }
+
+    const listUrl = `${baseUrl}functions/addons.json`;
+    const listResponse = await fetch(listUrl);
+    const addonsToCheck = await listResponse.json();
+
     let policy = { createScriptURL: (s) => s };
     if (window.trustedTypes && window.trustedTypes.createPolicy) {
       policy = window.trustedTypes.defaultPolicy ||
-        window.trustedTypes.createPolicy('yt-addon-loader', {
-          createScriptURL: (s) => s
+        window.trustedTypes.createPolicy('main-policy', { 
+          createScriptURL: (s) => s 
         });
     }
 
-    enabledList.forEach(addonId => {
-      // 根據你的需求，這裡可以擴充哪些要進 MAIN
-      // 目前設定：只有 none_stop 會被注入到 MAIN World
-      const isMainWorldTarget = (addonId === "none_stop");
+    for (const addonId of addonsToCheck) {
+      if (!enabledList.includes(addonId)) continue;
 
-      if (isMainWorldTarget) {
-        // 注入到頁面環境 (MAIN World)
-        const script = document.createElement('script');
-        const rawUrl = chrome.runtime.getURL(`functions/${addonId}/addon.js`);
-        script.src = policy.createScriptURL(rawUrl);
-        script.async = false;
-        
-        script.onload = () => {
-          console.log(`[YouTube addons] ${addonId} injected to MAIN world.`);
-          // 樣式解耦：注入對應的 CSS
-          injectAddonStyles(addonId);
-        };
-        
-        (document.head || document.documentElement).appendChild(script);
-      } else {
-        // 留在原本環境執行 (或是你原本其他的執行邏輯)
-        // 這裡暫時比照辦理注入，但如果你其他要留在 ISOLATED，則需另外處理
-        injectAddonScript(addonId, policy);
+      try {
+        const manifestUrl = `${baseUrl}functions/${addonId}/manifest.json`;
+        const response = await fetch(manifestUrl);
+        const addonConfig = await response.json();
+
+        if (addonConfig.world === "MAIN") {
+          const script = document.createElement('script');
+          script.src = policy.createScriptURL(`${baseUrl}functions/${addonId}/addon.js`);
+          script.async = false;
+          (document.head || document.documentElement).appendChild(script);
+          console.log(`[main.js] Summoned ${addonId} to MAIN world.`);
+        }
+      } catch (e) {
       }
-    });
+    }
   } catch (err) {
-    console.error('[YouTube addons] addons load failed.', err);
+    console.error('[main.js] Loader failed:', err);
   }
 }
 
-// 輔助函式：處理腳本注入
-function injectAddonScript(addonId, policy) {
-  const script = document.createElement('script');
-  const rawUrl = chrome.runtime.getURL(`functions/${addonId}/addon.js`);
-  script.src = policy.createScriptURL(rawUrl);
-  script.onload = () => injectAddonStyles(addonId);
-  (document.head || document.documentElement).appendChild(script);
-}
-
-// 輔助函式：樣式解耦 (CSS Injected)
-function injectAddonStyles(addonId) {
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.type = 'text/css';
-  link.href = chrome.runtime.getURL(`functions/${addonId}/addon.css`);
-  (document.head || document.documentElement).appendChild(link);
-}
-
-initializeAddons();
+initializeMainLoader();
