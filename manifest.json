@@ -21,14 +21,12 @@
       "js": [
         "main.js"
       ],
-      "run_at": "document_start",
-      "world": "MAIN" 
+      "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
     {
       "resources": [
-        "libs/addons.json",
         "functions/addons.json",
         "functions/*/*.html",
         "functions/*/*.js",

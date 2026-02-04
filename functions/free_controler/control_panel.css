@@ -9,7 +9,8 @@ body {
 
 .remote-body {
     display: flex;
-    flex-direction: column; /* 讓內容由上而下排列 */
+    flex-direction: column;
+    /* 讓內容由上而下排列 */
     height: 100vh;
     font-family: sans-serif;
 }
@@ -28,7 +29,8 @@ body {
 
 /* 歌曲資訊區塊：橫拉滿格，左右分布 */
 #info-display {
-    width: 100%; /* 強制滿格 */
+    width: 100%;
+    /* 強制滿格 */
     height: 40px;
     background: #121212;
     padding: 0 15px;
@@ -44,7 +46,8 @@ body {
     font-size: 14px;
     color: #00c853;
     font-weight: bold;
-    flex: 1; /* 佔據左側所有剩餘空間 */
+    flex: 1;
+    /* 佔據左側所有剩餘空間 */
     text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -57,21 +60,25 @@ body {
     color: #aaa;
     white-space: nowrap;
     text-align: right;
-    flex-shrink: 0; /* 防止時間被壓縮 */
+    flex-shrink: 0;
+    /* 防止時間被壓縮 */
 }
 
 /* 按鈕群：橫拉滿格 */
 .btn-group {
     display: flex;
-    width: 100%; /* 強制滿格 */
+    width: 100%;
+    /* 強制滿格 */
     gap: 10px;
     margin-top: 10px;
 }
 
 /* 遙控器按鈕樣式：平分空間 */
 .ctrl-btn {
-    flex: 1; /* 讓兩個按鈕平均分配寬度，實現填滿左右的效果 */
-    height: 50px; /* 稍微加高，更有遙控器質感 */
+    flex: 1;
+    /* 讓兩個按鈕平均分配寬度，實現填滿左右的效果 */
+    height: 50px;
+    /* 稍微加高，更有遙控器質感 */
     border: none;
     border-radius: 15px;
     font-size: 18px;
@@ -85,23 +92,17 @@ body {
     background: #00c853;
 }
 
-.btn-play:hover {
-    background: #007430;
-}
-
 .btn-pause {
     background: #d50000;
 }
 
-.btn-pause:hover {
-    background: #940000;
-}
-
 .ctrl-btn:hover {
-    transform: scale(1.02);
+    transform: scale(1.05);
+    filter: brightness(1.2);
+    border: 2px solid #fff;
 }
 
 .ctrl-btn:active {
     transform: scale(0.95);
-    filter: brightness(1.2);
+    filter: brightness(0.8);
 }
