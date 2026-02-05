@@ -16,7 +16,6 @@
         if (!win) return;
         const winDoc = win.document;
 
-        // --- Trusted Types 安全策略建立 ---
         let policy = { createScript: (s) => s, createHTML: (h) => h };
         if (win.trustedTypes?.createPolicy) {
             try { 
@@ -27,13 +26,12 @@
             } catch (e) { console.error("Policy creation failed", e); }
         }
 
-        // --- 安全地建立 DOM 結構，完全不使用 innerHTML ---
         if (!winDoc.getElementById('remote-shell')) {
             winDoc.body.style.cssText = "margin:0; padding:0; background:#121212; color:white; overflow:hidden;";
             
             const shell = winDoc.createElement('div');
             shell.id = 'remote-shell';
-            shell.className = 'remote-body'; // 對應 control_panel.css
+            shell.className = 'remote-body'; 
             
             const infoDisplay = winDoc.createElement('div');
             infoDisplay.id = 'info-display';
@@ -51,6 +49,17 @@
             const btnGroup = winDoc.createElement('div');
             btnGroup.className = 'btn-group';
             
+            // --- 修正：上一首 (加入 window.opener) ---
+            const prevBtn = winDoc.createElement('button');
+            prevBtn.id = 'prev-btn';
+            prevBtn.className = 'ctrl-btn btn-prev';
+            prevBtn.textContent = '⏮';
+            prevBtn.onclick = () => {
+                const targetDoc = window.opener ? window.opener.document : document;
+                const prevTrack = targetDoc.querySelector('.previous-button') || targetDoc.querySelector('.ytp-prev-button');
+                if (prevTrack) prevTrack.click();
+            };
+
             const pBtn = winDoc.createElement('button');
             pBtn.id = 'play-btn';
             pBtn.className = 'ctrl-btn btn-play';
@@ -62,13 +71,23 @@
             sBtn.className = 'ctrl-btn btn-pause';
             sBtn.textContent = '|| PAUSE';
             sBtn.onclick = () => document.querySelector('video')?.pause();
+
+            // --- 修正：下一首 (加入 window.opener) ---
+            const nextBtn = winDoc.createElement('button');
+            nextBtn.id = 'next-btn';
+            nextBtn.className = 'ctrl-btn btn-next';
+            nextBtn.textContent = '⏭';
+            nextBtn.onclick = () => {
+                const targetDoc = window.opener ? window.opener.document : document;
+                const nextTrack = targetDoc.querySelector('.next-button') || targetDoc.querySelector('.ytp-next-button');
+                if (nextTrack) nextTrack.click();
+            };
             
-            btnGroup.append(pBtn, sBtn);
+            btnGroup.append(prevBtn, pBtn, sBtn, nextBtn);
             shell.append(infoDisplay, btnGroup);
             winDoc.body.appendChild(shell);
         }
 
-        // 1. 載入遙控器主樣式
         if (!winDoc.getElementById('panel-style')) {
             const link = winDoc.createElement('link');
             link.id = 'panel-style';
@@ -81,24 +100,20 @@
             const shell = winDoc.getElementById('remote-shell');
             if (shell) {
                 clearInterval(check);
-                
                 const speedBase = basePath.replace('free_controler', 'speed_controler');
 
-                // 2. 載入樣式
                 fetch(basePath + 'speed_box.css').then(r => r.text()).then(css => {
                     const style = winDoc.createElement('style');
                     style.textContent = css;
                     winDoc.head.appendChild(style);
                 });
 
-                // 3. 注入速度控制 JS (使用 Trusted Types 安全路徑)
                 fetch(speedBase + 'addon.js').then(r => r.text()).then(code => {
                     const s = winDoc.createElement('script');
                     s.textContent = policy.createScript(code);
                     winDoc.head.appendChild(s);
                 });
 
-                // 4. 定時更新遙控器狀態
                 setInterval(() => {
                     const v = document.querySelector('ytd-reel-video-renderer[is-active] video') || document.querySelector('video');
                     if (!v) return;

@@ -1,6 +1,6 @@
 html,
 body {
-    background: #121212 !important;
+    background: #111 !important;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -19,7 +19,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: #1e1e1e;
+    background: #222;
     border: 3px solid #333;
     border-radius: 20px;
     padding: 20px;
@@ -32,7 +32,7 @@ body {
     width: 100%;
     /* 強制滿格 */
     height: 40px;
-    background: #121212;
+    background: #111;
     padding: 0 15px;
     border-radius: 10px;
     border: 1px solid #333;
@@ -44,7 +44,7 @@ body {
 
 #track-name {
     font-size: 14px;
-    color: #00c853;
+    color: #0c5;
     font-weight: bold;
     flex: 1;
     /* 佔據左側所有剩餘空間 */
@@ -67,7 +67,7 @@ body {
 /* 按鈕群：橫拉滿格 */
 .btn-group {
     display: flex;
-    width: 100%;
+
     /* 強制滿格 */
     gap: 10px;
     margin-top: 10px;
@@ -75,25 +75,33 @@ body {
 
 /* 遙控器按鈕樣式：平分空間 */
 .ctrl-btn {
-    flex: 1;
+    width: 100%;
     /* 讓兩個按鈕平均分配寬度，實現填滿左右的效果 */
     height: 50px;
-    /* 稍微加高，更有遙控器質感 */
     border: none;
     border-radius: 15px;
     font-size: 18px;
     font-weight: bold;
     cursor: pointer;
     color: white;
+    background: #0000;
     transition: transform 0.1s ease, filter 0.2s;
 }
 
 .btn-play {
-    background: #00c853;
+    background: #0c5;
 }
 
 .btn-pause {
-    background: #d50000;
+    background: #d00;
+}
+
+.btn-prev {
+    width: 30%;
+}
+
+.btn-next {
+    width: 30%;
 }
 
 .ctrl-btn:hover {
