@@ -16,6 +16,30 @@
         return doc.querySelector('video.html5-main-video') || doc.querySelector('video');
     };
 
+    // --- 新增：全螢幕滾輪控制邏輯 ---
+    window.addEventListener('wheel', (e) => {
+        // 判斷是否處於全螢幕
+        const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+        if (!isFullscreen) return;
+
+        const v = getTargetVideo();
+        if (!v) return;
+
+        // 屏蔽 YT 原生滾輪行為
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        const step = 0.1;
+        const direction = e.deltaY < 0 ? 1 : -1;
+        let newRate = Math.round((v.playbackRate + (direction * step)) * 10) / 10;
+
+        if (newRate < 0.1) newRate = 0.1;
+        if (newRate > 16) newRate = 16;
+
+        apply(newRate);
+    }, { passive: false, capture: true }); // 使用 capture 確保比 YT 早攔截
+    // ----------------------------
+
     const currentScript = document.currentScript || Array.from(document.getElementsByTagName('script')).find(s => s.src.includes(`${folder}/addon.js`));
     if (!isRemote && currentScript && !document.getElementById('yt-speed-style')) {
         const link = document.createElement('link');
@@ -29,9 +53,7 @@
     panel.id = 'yt-speed-panel';
     if (!isRemote) panel.classList.add('collapsed');
 
-    // 圓形懸浮球 (僅 YouTube 模式)
     if (!isRemote) {
-        const iconx = 32, icony = 40;
         const toggleBtn = document.createElement('button');
         toggleBtn.id = 'yt-speed-toggle';
         const svgNS = "http://www.w3.org/2000/svg";
@@ -40,7 +62,6 @@
         svg.setAttribute("width", "64");
         svg.setAttribute("height", "64");
 
-        // 1. 儀表板白色半圓弧 (中心 32,40)
         const gauge = document.createElementNS(svgNS, "path");
         gauge.setAttribute("d", `M 12 40 A 20 20 0 0 1 52 40`);
         gauge.setAttribute("fill", "none");
@@ -48,7 +69,6 @@
         gauge.setAttribute("stroke-width", "2.5");
         svg.appendChild(gauge);
 
-        // 2. 17 條等粗白色刻度線
         for (let i = 0; i <= 16; i++) {
             const line = document.createElementNS(svgNS, "line");
             const ang = Math.PI + (i * (Math.PI / 16));
@@ -63,7 +83,6 @@
             svg.appendChild(line);
         }
 
-        // 3. 白色中心圓點
         const centerCircle = document.createElementNS(svgNS, "circle");
         centerCircle.setAttribute("cx", "32");
         centerCircle.setAttribute("cy", "40");
@@ -71,7 +90,6 @@
         centerCircle.setAttribute("fill", "#fff");
         svg.appendChild(centerCircle);
 
-        // 4. 白色指針 (不再頂天)
         const needle = document.createElementNS(svgNS, "path");
         needle.id = "spd-gauge-needle";
         needle.setAttribute("d", "M 32 40 L 32 18");
@@ -127,7 +145,6 @@
     btnL.className = 'spd-btn';
     btnL.id = 'spd-shortcut-toggle';
 
-    // 獨立的速度盒，用來放紅框
     const speedBox = document.createElement('div');
     speedBox.id = 'yt-speed-box';
     speedBox.append(rowS, btnL);
@@ -164,7 +181,6 @@
             bO.textContent = (cur === 1) ? `${saved}x` : '1x';
             bO.onclick = () => apply(cur === 1 ? saved : 1);
         }
-        // 更新指針角度：0x 對應 -90deg，16x 對應 90deg
         const ndl = document.getElementById('spd-gauge-needle');
         if (ndl && v) {
             const rate = Math.min(Math.max(v.playbackRate, 0), 16);
