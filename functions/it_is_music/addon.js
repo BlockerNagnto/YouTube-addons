@@ -3,7 +3,7 @@
  * 功能：強制解鎖非音樂內容 + 恢復原生右鍵選單
  */
 
-(function() {
+export default async function ({ addon, msg }) {
     const addonName = "UnlockNonMusic";
     const log = (msg) => console.log(`[${addonName}] ${msg}`);
 
@@ -95,4 +95,4 @@
     } else {
         window.addEventListener('load', init);
     }
-})();
+};

@@ -1,13 +1,12 @@
-(function () {
+export default async function ({ addon, msg }) {
     const folder = "free_controler";
-    const currentScript = document.currentScript || Array.from(document.getElementsByTagName('script')).find(s => s.src.includes(`${folder}/addon.js`));
-    const basePath = currentScript ? currentScript.src.replace('addon.js', '') : '';
 
-    if (currentScript && !document.getElementById('free-ctrl-style-link')) {
+    // 修正：不再依賴 currentScript，統一使用 addon.Url.Get 取得資源
+    if (!document.getElementById('free-ctrl-style-link')) {
         const link = document.createElement('link');
         link.id = 'free-ctrl-style-link';
         link.rel = 'stylesheet';
-        link.href = basePath + 'active_button.css';
+        link.href = addon.Url.Get('active_button.css');
         document.head.appendChild(link);
     }
 
@@ -38,7 +37,7 @@
             
             const tName = winDoc.createElement('div');
             tName.id = 'track-name';
-            tName.textContent = '載入中...';
+            tName.textContent = msg('loading');
             
             const tTime = winDoc.createElement('div');
             tTime.id = 'track-time';
@@ -49,7 +48,6 @@
             const btnGroup = winDoc.createElement('div');
             btnGroup.className = 'btn-group';
             
-            // --- 修正：上一首 (加入 window.opener) ---
             const prevBtn = winDoc.createElement('button');
             prevBtn.id = 'prev-btn';
             prevBtn.className = 'ctrl-btn btn-prev';
@@ -64,15 +62,20 @@
             pBtn.id = 'play-btn';
             pBtn.className = 'ctrl-btn btn-play';
             pBtn.textContent = '▶ PLAY';
-            pBtn.onclick = () => document.querySelector('video')?.play();
+            pBtn.onclick = () => {
+                const targetVideo = (window.opener ? window.opener.document : document).querySelector('video');
+                if (targetVideo) targetVideo.play();
+            };
             
             const sBtn = winDoc.createElement('button');
             sBtn.id = 'pause-btn';
             sBtn.className = 'ctrl-btn btn-pause';
             sBtn.textContent = '|| PAUSE';
-            sBtn.onclick = () => document.querySelector('video')?.pause();
+            sBtn.onclick = () => {
+                const targetVideo = (window.opener ? window.opener.document : document).querySelector('video');
+                if (targetVideo) targetVideo.pause();
+            };
 
-            // --- 修正：下一首 (加入 window.opener) ---
             const nextBtn = winDoc.createElement('button');
             nextBtn.id = 'next-btn';
             nextBtn.className = 'ctrl-btn btn-next';
@@ -92,7 +95,7 @@
             const link = winDoc.createElement('link');
             link.id = 'panel-style';
             link.rel = 'stylesheet';
-            link.href = basePath + 'control_panel.css';
+            link.href = addon.Url.Get('control_panel.css');
             winDoc.head.appendChild(link);
         }
 
@@ -100,27 +103,32 @@
             const shell = winDoc.getElementById('remote-shell');
             if (shell) {
                 clearInterval(check);
-                const speedBase = basePath.replace('free_controler', 'speed_controler');
 
-                fetch(basePath + 'speed_box.css').then(r => r.text()).then(css => {
+                // 修正：使用 addon.Url.Get 跨插件獲取資源 (需確保 speed_controler 路徑邏輯正確)
+                // 由於 Url.Get 是綁定在當前插件目錄，跨插件需手動替換路徑或透過全域 baseUrl
+                const speedCssUrl = addon.Url.Get('../../functions/speed_controler/speed_box.css');
+                const speedJsUrl = addon.Url.Get('../../functions/speed_controler/addon.js');
+
+                fetch(speedCssUrl).then(r => r.text()).then(css => {
                     const style = winDoc.createElement('style');
                     style.textContent = css;
                     winDoc.head.appendChild(style);
-                });
+                }).catch(e => {});
 
-                fetch(speedBase + 'addon.js').then(r => r.text()).then(code => {
+                fetch(speedJsUrl).then(r => r.text()).then(code => {
                     const s = winDoc.createElement('script');
                     s.textContent = policy.createScript(code);
                     winDoc.head.appendChild(s);
-                });
+                }).catch(e => {});
 
                 setInterval(() => {
-                    const v = document.querySelector('ytd-reel-video-renderer[is-active] video') || document.querySelector('video');
+                    const targetDoc = window.opener ? window.opener.document : document;
+                    const v = targetDoc.querySelector('ytd-reel-video-renderer[is-active] video') || targetDoc.querySelector('video');
                     if (!v) return;
                     const tName = winDoc.getElementById('track-name'), tTime = winDoc.getElementById('track-time');
                     const fmt = (s) => (isNaN(s) || !isFinite(s)) ? '0:00' : `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
                     if (tTime) tTime.textContent = `${fmt(v.currentTime)} / ${fmt(v.duration)}`;
-                    const title = navigator.mediaSession?.metadata?.title || '未在播放';
+                    const title = (window.opener ? window.opener.navigator : navigator).mediaSession?.metadata?.title || msg('not_playing') || '未在播放';
                     if (tName) tName.textContent = title.trim();
                 }, 1000);
             }
@@ -134,9 +142,9 @@
             if (logoLink) logoLink.style.display = 'none';
             const newBtn = document.createElement('button');
             newBtn.id = 'free-ctrl-btn';
-            newBtn.textContent = '召喚遙控器';
+            newBtn.textContent = msg('summon_remote');
             newBtn.onclick = (e) => { e.preventDefault(); openPanel(); };
             logo.appendChild(newBtn);
         }
     }, 1000);
-})();
+};

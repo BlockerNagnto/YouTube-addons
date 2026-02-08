@@ -2,7 +2,7 @@
  * YouTube Music / YouTube 自動跳過內容警告視窗
  */
 
-(function() {
+export default async function ({ addon, msg }) {
     let video = null;
     let timer = null;
     const addonname="no warning";
@@ -81,4 +81,4 @@
 
     // 初始啟動
     startTimer();
-})();
+};

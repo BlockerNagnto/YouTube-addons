@@ -1,0 +1,27 @@
+{
+    "name": "速度控制器",
+    "version": "1.2.0",
+    "description": "提供全螢幕滾輪調速與自定義速度按鈕",
+    "settings": [
+        {
+            "id": "enable_wheel",
+            "text": "啟用全螢幕滾輪調速",
+            "type": "bool",
+            "default": true
+        },
+        {
+            "id": "wheel_step",
+            "text": "滾輪變化值 (步進)",
+            "type": "float",
+            "default": 0.1,
+            "min": 0.05,
+            "max": 2.0
+        },
+        {
+            "id": "speed_buttons",
+            "text": "速度按鈕清單 (逗號分隔)",
+            "type": "list",
+            "default": "0.1\n1\n2\n3\n4\n5\n6\n8\n16"
+        }
+    ]
+}

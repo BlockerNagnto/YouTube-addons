@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "YouTube addons",
   "description": "為 youtube 網站提供可自訂的功能",
-  "version": "1.1",
+  "version": "1.2",
   "icons": {
     "16": "icons/16.png",
     "32": "icons/32.png",
@@ -38,6 +38,8 @@
   "web_accessible_resources": [
     {
       "resources": [
+        "addons_loader.js",
+      "lang/*/*.json",
         "functions/addons.json",
         "functions/*/*.html",
         "functions/*/*.js",

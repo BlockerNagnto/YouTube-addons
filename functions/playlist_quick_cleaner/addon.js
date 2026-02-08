@@ -1,4 +1,4 @@
-(function () {
+export default async function ({ addon, msg }) {
     let hasClickedShow = false; // 紀錄是否已經叫出死片
 
     const isPlaylistPage = () => location.href.includes('list=') && !location.href.includes('watch?v=');
@@ -151,4 +151,4 @@
 
     initObserver();
     setInterval(injectUI, 1500);
-})();
+};

@@ -1,4 +1,4 @@
-(function () {
+export default async function ({ addon, msg }) {
   const tag = '[Youtube NonStop]';
   const isYoutubeMusic = window.location.hostname === 'music.youtube.com';
 
@@ -174,4 +174,4 @@
   observeApp();
 
   log(`Monitoring YouTube ${isYoutubeMusic ? 'Music ' : ''}for 'Confirm watching?' action...`);
-})();
+};

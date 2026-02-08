@@ -1,4 +1,4 @@
-(function () {
+export default async function ({ addon, msg }) {
     let lastUrl = "";
 
     const realClick = (el) => {
@@ -49,4 +49,4 @@
             }
         }
     }, 1000);
-})();
+};
