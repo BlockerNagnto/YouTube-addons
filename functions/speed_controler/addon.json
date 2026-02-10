@@ -14,12 +14,12 @@
             "text": "滾輪變化值 (步進)",
             "type": "float",
             "default": 0.1,
-            "min": 0.05,
+            "min": 0.1,
             "max": 2.0
         },
         {
             "id": "speed_buttons",
-            "text": "速度按鈕清單 (逗號分隔)",
+            "text": "速度按鈕清單",
             "type": "list",
             "default": "0.1\n1\n2\n3\n4\n5\n6\n8\n16"
         }

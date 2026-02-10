@@ -9,58 +9,262 @@
   --red: #cc0000;
 }
 
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CCC;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* 隱藏文件輸入 */
+#import-file {
+  display: none;
+}
+
 body {
-  margin: 0; padding: 10px;
-  background-color: var(--bg); color: var(--text);
+  margin: 0;
+  padding: 10px;
+  background-color: var(--bg);
+  color: var(--text);
   font-family: "Roboto", Arial, sans-serif;
 }
 
 /* 佈局適配 */
 @media screen and (max-width: 500px) {
-  body { width: 320px; }
-  .addon-item { padding: 12px; }
-  .settings-footer { display: none; }
-}
-@media screen and (min-width: 501px) {
-  body { width: 600px; margin: 50px auto; }
-  .addon-item { padding: 20px; margin-bottom: 12px; }
-  .addon-name { font-size: 18px; font-weight: bold; }
+  body {
+    width: 320px;
+  }
+
+  .addon-item {
+    padding: 12px;
+  }
+
+  .settings-footer {
+    display: none;
+  }
 }
 
-#title { margin-bottom: 20px; border-left: 4px solid var(--red); padding-left: 10px; }
+@media screen and (min-width: 501px) {
+  body {
+    width: 600px;
+    margin: 50px auto;
+  }
+
+  .addon-item {
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+
+  .addon-name {
+    font-size: 18px;
+    font-weight: bold;
+  }
+}
+
+#title {
+  margin-bottom: 20px;
+  border-left: 4px solid var(--red);
+  padding-left: 10px;
+}
 
 .addon-item {
-  display: flex; align-items: center; justify-content: space-between;
-  background: var(--card); border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 10px;
 }
 
-.addon-info { flex: 1; }
-.addon-desc { color: var(--dim); font-size: 13px; margin-top: 5px; }
+.addon-info {
+  flex: 1;
+}
+
+.addon-desc {
+  color: var(--dim);
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.addon-name-row {
+  transition: opacity 0.2s ease;
+}
+
+.addon-name-row:hover {
+  opacity: 0.8;
+}
 
 /* Switch */
-.switch { position: relative; width: 40px; height: 22px; }
-.switch input { display: none; }
+.switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+}
+
+.switch input {
+  display: none;
+}
+
 .slider {
-  position: absolute; cursor: pointer; inset: 0;
-  background: #333; border-radius: 22px; transition: .3s;
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #333;
+  border-radius: 22px;
+  transition: .3s;
 }
+
 .slider:before {
-  position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
-  background: #fff; border-radius: 50%; transition: .3s;
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: .3s;
 }
-input:checked + .slider { background: var(--red); }
-input:checked + .slider:before { transform: translateX(18px); }
+
+input:checked+.slider {
+  background: var(--red);
+}
+
+input:checked+.slider:before {
+  transform: translateX(18px);
+}
 
 /* Buttons */
 .settings-footer {
-  margin-top: 30px; display: flex; gap: 15px;
-  border-top: 1px solid var(--border); padding-top: 20px;
+  margin-top: 30px;
+  display: flex;
+  gap: 15px;
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
 }
+
 button {
-  flex: 1; padding: 12px; background: #2a2a2a; color: white;
-  border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
+  flex: 1;
+  padding: 12px;
+  background: #2a2a2a;
+  color: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
   font-size: 14px;
 }
-button:hover { background: #333; border-color: #555; }
-label{color: #888;}
+
+button:hover {
+  background: #333;
+  border-color: #555;
+}
+
+label {
+  color: #888;
+}
+
+/* 細項設定容器 */
+.addon-item-container {
+  margin-bottom: 10px;
+}
+
+.addon-custom-settings {
+  padding: 10px 20px;
+  border: 1px solid #333;
+  border-top: none;
+  background: #161616;
+  border-radius: 0 0 10px 10px;
+  margin-top: -1px;
+}
+
+.addon-custom-settings.hidden {
+  display: none;
+}
+
+.setting-row {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.setting-row label {
+  font-size: 13px;
+  color: #ccc;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+/* 設定輸入框樣式 (套用到有 .opt-input 的 input/textarea/select) */
+input.opt-input[type="text"],
+input.opt-input[type="number"],
+textarea.opt-input,
+select.opt-input,
+input.opt-input[type="color"] {
+  width: 120px;
+  background: #000;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 4px;
+  box-sizing: border-box;
+}
+
+input.opt-input[type="text"],
+input.opt-input[type="number"],
+select.opt-input {
+  width: 120px;
+}
+
+textarea.opt-input {
+  width: 120px;
+  height: 60px;
+  min-height: 20px;
+  font-size: 12px;
+  resize: both;
+  direction: rtl;
+}
+
+::-webkit-resizer {
+  border-top: 500cm solid #000;
+  border-bottom: 500cm solid #FFF;
+  border-left: 500cm solid #fff;
+  border-right: 500cm solid #000;
+}
+
+input.opt-input[type="color"] {
+  width: 120px;
+  height: 28px;
+  padding: 2px;
+  border-radius: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background-clip: padding-box;
+}
+
+/* 展開箭頭 */
+.expand-arrow-small {
+  display: inline-block;
+  width: 14px;
+  text-align: center;
+  transition: transform 0.3s ease;
+  font-size: 11px;
+  color: #aaa;
+  flex-shrink: 0;
+}
+
+.expand-arrow-small.expanded {
+  transform: rotate(90deg);
+}

@@ -1,0 +1,33 @@
+{
+    "name": "YouTube NonStop",
+    "description": "Kiss the annoying \"Video paused. Continue watching?\" confirmation goodbye!",
+    "version": "0.9.2",
+    "world": "MAIN",
+    "has_lang": false,
+    "manifest_data": {
+        "short_name": "YT NonStop",
+        "content_scripts": [
+            {
+                "js": [
+                    "addon.js"
+                ],
+                "matches": [
+                    "https://www.youtube.com/*",
+                    "https://music.youtube.com/*"
+                ],
+                "run_at": "document_end"
+            }
+        ],
+        "web_accessible_resources": [
+            {
+                "matches": [
+                    "https://www.youtube.com/*",
+                    "https://music.youtube.com/*"
+                ],
+                "resources": [
+                    "autoconfirm.js"
+                ]
+            }
+        ]
+    }
+}

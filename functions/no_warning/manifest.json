@@ -1,4 +1,7 @@
 {
+   "action": {
+      "default_popup": "popup.html"
+   },
    "content_scripts": [ {
       "js": [ "scripts.js" ],
       "matches": [ "https://www.youtube.com/*" ],
@@ -9,9 +12,18 @@
       "run_at": "document_end"
    } ],
    "description": "Auto click YouTube content warning.",
+   "host_permissions": [ "http://www.youtube.com/*", "https://music.youtube.com/*" ],
+   "icons": {
+      "128": "/images/logo128.png",
+      "16": "/images/logo16.png",
+      "32": "/images/logo32.png",
+      "48": "/images/logo48.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu0EjUwTPiFZuL17HJogK4/5mvfuDagPpCrhC7oK7SElrzwc2PzJCf/GH6kCVbkC2sYipKA0qrKCiS9NPdZjUuy7X9REjcP5KKWrHMbSj2bEvSkNCKMHF1D7ynq+aJPEMcfYYjp0ky4ON/TbV4QkQFtJbUUx+OFY9mvhGe+Kksr7ePc0ZR0NFquzX0/yPBON6IFxEwNRIzPhVjZiAtMInoxL4VwREKRS1bPIE5OQH7NiDWIegk64BuZ13+XsMcL7OBoBsNldH9+dk8EuDDvdeEEUcGCkSynkKHoutmJa1WHfN7PwZK7r+cXWdbM8IKY4obgLNPmVoVprN9n4lEaz3CQIDAQAB",
    "manifest_version": 3,
-   "name": "No Content Warning",
+   "name": "No Content Warning YouTube",
    "options_page": "options.html",
    "permissions": [ "storage" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
    "version": "3.0.3"
 }
