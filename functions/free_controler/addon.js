@@ -89,13 +89,22 @@ export default async function ({ addon, msg }) {
 
                 // 遙控器預先準備好速度盒樣式（使用 link 確保基礎樣式存在）
                 if (!winDoc.getElementById('speed-box-style')) {
-                    const speedCss = winDoc.createElement('link');
-                    speedCss.id = 'speed-box-style';
-                    speedCss.rel = 'stylesheet';
-                    speedCss.href = `${speedBase}speed_box.css`;
-                    winDoc.head.appendChild(speedCss);
+                    const freeCss = winDoc.createElement('link');
+                    freeCss.id = 'speed-box-style';
+                    freeCss.rel = 'stylesheet';
+                    freeCss.href = addon.Url.Get("speed_box.css");
+                    winDoc.head.appendChild(freeCss);
+                    const title = winDoc.createElement('title');
+                    title.text = "[YouTube addons]Free Controler Panel";
+                    winDoc.head.appendChild(title);
                 }
-
+                const movePanel = setInterval(() => {
+                    const spdPanel = winDoc.getElementById('yt-speed-panel');
+                    if (spdPanel && spdPanel.parentElement !== shell) {
+                        shell.appendChild(spdPanel); // 搬家進去
+                        clearInterval(movePanel);
+                    }
+                }, 100);
                 try {
                     const speedModule = await import(`${speedBase}addon.js`);
 
@@ -103,9 +112,8 @@ export default async function ({ addon, msg }) {
                         const mockAddon = {
                             Url: { 
                                 Get: function(path) {
-                                    // 2. 攔截法：如果速度盒要拿 CSS，強制導向我們指定的路徑
                                     if (path.endsWith('.css')) {
-                                        return "${speedBase}" + "speed_box.css";
+                                        return "${baseUrl}" + "\\functions\\free_controler\\speed_box.css";
                                     }
                                     return "${speedBase}" + path;
                                 }

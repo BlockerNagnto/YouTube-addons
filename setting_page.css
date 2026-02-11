@@ -1,12 +1,13 @@
 @charset "UTF-8";
 
 :root {
-  --bg: #0f0f0f;
-  --card: #1e1e1e;
-  --text: #ffffff;
-  --dim: #aaaaaa;
-  --border: #333333;
-  --red: #cc0000;
+  --bg: #111;
+  --card: #222;
+  --text: #fff;
+  --dim: #aaa;
+  --border: #333;
+  --red: #c00;
+  --orange: #fa0;
 }
 
 ::-webkit-scrollbar {
@@ -47,7 +48,7 @@ body {
     width: 320px;
   }
 
-  .addon-item {
+  .addon-main-row {
     padding: 12px;
   }
 
@@ -62,8 +63,11 @@ body {
     margin: 50px auto;
   }
 
-  .addon-item {
+  .addon-main-row {
     padding: 20px;
+  }
+
+  .addon-item {
     margin-bottom: 12px;
   }
 
@@ -79,13 +83,22 @@ body {
   padding-left: 10px;
 }
 
+/* 面板視覺合併：改為縱向排列並移除多餘圓角 */
 .addon-item {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 10px;
+  overflow: hidden;
+}
+
+.addon-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .addon-info {
@@ -106,11 +119,12 @@ body {
   opacity: 0.8;
 }
 
-/* Switch */
+/* --- 主項開關 (大) --- */
 .switch {
   position: relative;
-  width: 40px;
-  height: 22px;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
 }
 
 .switch input {
@@ -122,15 +136,15 @@ body {
   cursor: pointer;
   inset: 0;
   background: #333;
-  border-radius: 22px;
+  border-radius: 24px;
   transition: .3s;
 }
 
 .slider:before {
   position: absolute;
   content: "";
-  height: 16px;
-  width: 16px;
+  height: 18px;
+  width: 18px;
   left: 3px;
   bottom: 3px;
   background: #fff;
@@ -143,6 +157,33 @@ input:checked+.slider {
 }
 
 input:checked+.slider:before {
+  transform: translateX(20px);
+}
+
+/* --- 細項開關 (縮小，灰橘切換，2:1) --- */
+.small-switch {
+  width: 36px;
+  height: 18px;
+  margin-left: auto;
+}
+
+.small-switch .slider {
+  background: #444;
+  border-radius: 18px;
+}
+
+.small-switch .slider:before {
+  height: 12px;
+  width: 12px;
+  left: 3px;
+  bottom: 3px;
+}
+
+.small-switch input:checked+.slider {
+  background: var(--orange);
+}
+
+.small-switch input:checked+.slider:before {
   transform: translateX(18px);
 }
 
@@ -171,22 +212,24 @@ button:hover {
   border-color: #555;
 }
 
-label {
+.buttom-hint {
   color: #888;
+  text-align: center;
+  display: block;
+  margin: 15px;
+  font-size: 12px;
 }
 
-/* 細項設定容器 */
+/* 細項面板區域 */
 .addon-item-container {
   margin-bottom: 10px;
 }
 
 .addon-custom-settings {
-  padding: 10px 20px;
-  border: 1px solid #333;
-  border-top: none;
-  background: #161616;
-  border-radius: 0 0 10px 10px;
-  margin-top: -1px;
+  padding: 0 20px 15px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid var(--border);
+  margin: 0;
 }
 
 .addon-custom-settings.hidden {
@@ -194,17 +237,17 @@ label {
 }
 
 .setting-row {
-  margin-bottom: 8px;
+  margin-top: 12px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 10px;
 }
 
 .setting-row label {
   font-size: 13px;
-  color: #ccc;
   margin-top: 5px;
+  color: #ccc;
   flex-shrink: 0;
 }
 

@@ -50,7 +50,7 @@ export default async function ({ addon, msg }) {
         apply(newRate);
     }, { passive: false, capture: true });
 
-    if (!isRemote && !document.getElementById('yt-speed-style')) {
+    if (!document.getElementById('yt-speed-style')) {
         const link = document.createElement('link');
         link.id = 'yt-speed-style';
         link.rel = 'stylesheet';
@@ -59,6 +59,11 @@ export default async function ({ addon, msg }) {
     }
 
     const panel = document.createElement('div');
+    // --- 調整這三個數值即可控制位置與大小 ---
+    const panelx = 32;    // 水平中心 (0-64)
+    const panely = 30;    // 垂直中心
+    const radius = 25;    // 儀表板半徑
+    // ------------------------------------
     panel.id = 'yt-speed-panel';
     if (!isRemote) panel.classList.add('collapsed');
 
@@ -68,36 +73,54 @@ export default async function ({ addon, msg }) {
         const svgNS = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(svgNS, "svg");
         svg.setAttribute("viewBox", "0 0 64 64");
-        svg.setAttribute("width", "64");
-        svg.setAttribute("height", "64");
+        svg.setAttribute("width", "50");
+        svg.setAttribute("height", "50");
+
         const gauge = document.createElementNS(svgNS, "path");
-        gauge.setAttribute("d", "M 12 40 A 20 20 0 0 1 52 40");
+        gauge.setAttribute("d", `M ${panelx - radius} ${panely} A ${radius} ${radius} 0 0 1 ${panelx + radius} ${panely}`);
         gauge.setAttribute("fill", "none");
         gauge.setAttribute("stroke", "#ffffff");
         gauge.setAttribute("stroke-width", "2.5");
         svg.appendChild(gauge);
+
         for (let i = 0; i <= 16; i++) {
             const line = document.createElementNS(svgNS, "line");
             const ang = Math.PI + (i * (Math.PI / 16));
-            line.setAttribute("x1", (32 + 20 * Math.cos(ang)).toFixed(2));
-            line.setAttribute("y1", (40 + 20 * Math.sin(ang)).toFixed(2));
-            line.setAttribute("x2", (32 + 14 * Math.cos(ang)).toFixed(2));
-            line.setAttribute("y2", (40 + 14 * Math.sin(ang)).toFixed(2));
+            line.setAttribute("x1", (panelx + radius * Math.cos(ang)).toFixed(2));
+            line.setAttribute("y1", (panely + radius * Math.sin(ang)).toFixed(2));
+            line.setAttribute("x2", (panelx + 15 * Math.cos(ang)).toFixed(2));
+            line.setAttribute("y2", (panely + 15 * Math.sin(ang)).toFixed(2));
             line.setAttribute("stroke", "#fff");
             line.setAttribute("stroke-width", "2.5");
             svg.appendChild(line);
         }
+
         const centerCircle = document.createElementNS(svgNS, "circle");
-        centerCircle.setAttribute("cx", "32"); centerCircle.setAttribute("cy", "40");
-        centerCircle.setAttribute("r", "3.5"); centerCircle.setAttribute("fill", "#fff");
+        centerCircle.setAttribute("cx", panelx); centerCircle.setAttribute("cy", panely);
+        centerCircle.setAttribute("r", "3"); centerCircle.setAttribute("fill", "#fff");
         svg.appendChild(centerCircle);
+
         const needle = document.createElementNS(svgNS, "path");
         needle.id = "spd-gauge-needle";
-        needle.setAttribute("d", "M 32 40 L 32 18");
-        needle.setAttribute("stroke", "#fff"); needle.setAttribute("stroke-width", "3.5");
+        needle.setAttribute("d", `M ${panelx} ${panely} L ${panelx} ${panely - (radius - 8)}`);
+        needle.setAttribute("stroke", "#fff"); needle.setAttribute("stroke-width", "3");
         needle.setAttribute("stroke-linecap", "round");
-        needle.style.cssText = "transform-origin: 32px 40px; transition: transform 0.15s ease-out;";
+        needle.style.cssText = `transform-origin: ${panelx}px ${panely}px; transition: transform 0.15s ease-out;`;
         svg.appendChild(needle);
+
+        const textDisplay = document.createElementNS(svgNS, "text");
+        textDisplay.setAttribute("x", "32");
+        textDisplay.setAttribute("y", "60");
+        textDisplay.setAttribute("text-anchor", "middle");
+        textDisplay.setAttribute("fill", "#fff");
+        textDisplay.setAttribute("font-size", "30px");
+        textDisplay.setAttribute("font-weight", "bold");
+        const tspan = document.createElementNS(svgNS, "tspan");
+        tspan.id = "spd-display-val";
+        tspan.textContent = "1.0";
+        textDisplay.appendChild(tspan);
+        svg.appendChild(textDisplay);
+
         toggleBtn.appendChild(svg);
 
         let isDragging = false, moved = false, startX, startY, offsetX, offsetY;
@@ -134,7 +157,7 @@ export default async function ({ addon, msg }) {
 
         speeds.forEach(s => {
             const b = document.createElement('button');
-            b.className = 'spd-btn'; 
+            b.className = 'spd-btn';
             b.textContent = s + 'x';
             b.onclick = () => apply(s);
             rowS.appendChild(b);
@@ -170,16 +193,22 @@ export default async function ({ addon, msg }) {
         const bO = document.getElementById('spd-shortcut-toggle');
         if (bO && v) {
             const cur = v.playbackRate;
-            const saved = localStorage.getItem(lastKey) || "5";
+            const saved = localStorage.getItem(lastKey) || "1";
             bO.textContent = (cur === 1) ? `${saved}x` : '1x';
             bO.onclick = () => apply(cur === 1 ? saved : 1);
         }
 
         const ndl = document.getElementById('spd-gauge-needle');
-        if (ndl && v) {
+        const dpl = document.getElementById('spd-display-val');
+        if (v) {
             const rate = Math.min(Math.max(v.playbackRate, 0), 16);
-            const deg = (rate * (180 / 16)) - 90;
-            ndl.style.transform = `rotate(${deg}deg)`;
+            if (ndl) {
+                const deg = (rate * (180 / 16)) - 90;
+                ndl.style.transform = `rotate(${deg}deg)`;
+            }
+            if (dpl) {
+                dpl.textContent = rate.toFixed(1);
+            }
         }
 
         if (v && v.readyState >= 1) {
@@ -189,7 +218,7 @@ export default async function ({ addon, msg }) {
                 if (loc.href.includes("&list=") || loc.href.includes("/shorts/") || loc.hostname.includes("music.youtube")) {
                     v.playbackRate = 1;
                 } else {
-                    apply(localStorage.getItem(lastKey) || "5");
+                    apply(localStorage.getItem(lastKey) || "1");
                 }
                 window.yt_speed_init = true;
             }

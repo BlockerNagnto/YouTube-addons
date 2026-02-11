@@ -1,0 +1,71 @@
+{
+    "name": "設定測試器2",
+    "version": "0",
+    "description": "測試main world的設定顯示",
+    "settings": [
+        {
+            "id": "boolean",
+            "text": "boolean",
+            "type": "boolean",
+            "default": true
+        },
+        {
+            "id": "integer",
+            "text": "integer",
+            "type": "integer",
+            "default": 1,
+            "max": 100,
+            "min": -10
+        },
+        {
+            "id": "float",
+            "text": "float",
+            "type": "float",
+            "default": 0.1,
+            "min": 0.1,
+            "max": 2.0
+        },
+        {
+            "id": "list",
+            "text": "list",
+            "type": "list",
+            "default": ""
+        },
+        {
+            "id": "text",
+            "text": "text",
+            "type": "text",
+            "default": ""
+        },
+        {
+            "id": "color",
+            "text": "color pickor",
+            "type": "color",
+            "default": "#ffffff"
+        },
+        {
+            "id": "select",
+            "text": "select",
+            "type": "select",
+            "default": "default",
+            "potentialValues": [
+                {
+                    "id": "one",
+                    "name": "one"
+                },
+                {
+                    "id": "two",
+                    "name": "two"
+                },
+                {
+                    "id": "default",
+                    "name": "three"
+                },
+                {
+                    "id": "four",
+                    "name": "four"
+                }
+            ]
+        }
+    ]
+}
