@@ -19,10 +19,9 @@
         "https://music.youtube.com/*"
       ],
       "js": [
-        "main.js"
+        "isolated.js"
       ],
-      "run_at": "document_start",
-      "world": "MAIN"
+      "run_at": "document_start"
     },
     {
       "matches": [
@@ -30,21 +29,27 @@
         "https://music.youtube.com/*"
       ],
       "js": [
-        "isolated.js"
+        "main.js"
       ],
-      "run_at": "document_start"
+      "run_at": "document_start",
+      "world": "MAIN"
     }
   ],
   "web_accessible_resources": [
     {
       "resources": [
-        "addons_loader.js",
-      "lang/*/*.json",
+        "libs/default_addons.json",
+        "lang/*/*.json",
         "functions/addons.json",
         "functions/*/*.html",
         "functions/*/*.js",
         "functions/*/*.json",
-        "functions/*/*.css"
+        "functions/*/*.css",
+        "functions(main)/addons.json",
+        "functions(main)/*/*.html",
+        "functions(main)/*/*.js",
+        "functions(main)/*/*.json",
+        "functions(main)/*/*.css"
       ],
       "matches": [
         "https://www.youtube.com/*",
