@@ -1,0 +1,4 @@
+{
+    "hide_guide_sidebar": "ytd-guide-section-renderer.ytd-guide-renderer[mini-guide-visible]",
+    "hide_grid_header": "div#header.ytd-rich-grid-renderer"
+}

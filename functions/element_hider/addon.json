@@ -1,0 +1,19 @@
+{
+    "name": "我不要這個",
+    "version": "1.0",
+    "description": "把頁面上不需要的東西拿去退了",
+    "settings": [
+        {
+            "id": "hide_guide_sidebar",
+            "text": "隱藏側邊欄特定區塊 (Mini Guide)",
+            "type": "boolean",
+            "default": false
+        },
+        {
+            "id": "hide_grid_header",
+            "text": "隱藏首頁頂部導覽列 (Rich Grid Header)",
+            "type": "boolean",
+            "default": false
+        }
+    ]
+}
