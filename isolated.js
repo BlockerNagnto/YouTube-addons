@@ -6,9 +6,9 @@ async function initializeLoader() {
         const res = await fetch(`${baseUrl}functions/addons.json`);
         const addonsList = await res.json();
 
-        const storage = await chrome.storage.local.get(['enabled_addons', 'settings']);
+        const storage = await chrome.storage.local.get(['enabled_addons', 'addon_settings']);
         const enabledList = storage.enabled_addons || addonsList;
-        const allSettings = storage.settings || {};
+        const allSettings = storage.addon_settings || {};
 
         // 準備數據給 main.js
         document.documentElement.dataset.extensionBaseUrl = baseUrl;

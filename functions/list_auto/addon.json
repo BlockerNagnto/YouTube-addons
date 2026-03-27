@@ -1,0 +1,13 @@
+{
+   "name": "list auto clicker",
+   "version": "3.1",
+   "description": "自動啟用播放清單的循環播放與隨機播放，播到底自動跳回第一首 (僅限指定歌單)",
+   "settings": [
+      {
+         "id": "whitelist_ids",
+         "text": "指定歌單 ID (每行一個)",
+         "type": "list",
+         "default": ""
+      }
+   ]
+}
