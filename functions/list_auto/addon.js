@@ -6,30 +6,29 @@ export default async function ({ addon, msg }) {
     el.dispatchEvent(new MouseEvent("mouseup", opts));
     el.click();
   };
+
+  let lastProcessedHref = "";
+  let isMatched = false;
+
   setInterval(() => {
-    // --- 核心判定區：修正格式比對與強制跳過 ---
     const currentHref = window.location.href;
     const listMatch = currentHref.match(/[?&]list=([^&]+)/);
     const currentListId = listMatch ? listMatch[1] : null;
+    if (currentHref !== lastProcessedHref) {
 
-    // 1. 取得原始字串並轉為乾淨的陣列
-    const rawWhitelist = addon.settings.get("whitelist_ids") || "";
-    // 強制清理空格與空行，確保比對時是純字串陣列
-    const whitelist = rawWhitelist
-      .split(/[\n\r]+/)
-      .map((id) => id.trim())
-      .filter((id) => id);
+      const rawWhitelist = addon.settings.get("whitelist_ids") || "";
+      const whitelist = rawWhitelist.split(/[\n\r]+/).map((id) => id.trim()).filter((id) => id);
 
-    // 2. 顯示抓取到的原始資料格式 (Debug 用)
-    if (currentListId) {
-      console.log(
-        `[Addon Debug] 網址 ID: "${currentListId}" (類型: ${typeof currentListId})`,
-      );
-      console.log(`[Addon Debug] 設定陣列:`, whitelist);
+      isMatched = currentListId && whitelist.includes(String(currentListId));
+
+      if (currentListId) {
+        console.log(`[Addon] 偵測到換頁，歌單 ID: "${currentListId}"，匹配: ${isMatched}`);
+      }
+      lastProcessedHref = currentHref;
     }
 
     // 3. 嚴格比對：如果 ID 不在陣列裡，直接結束這一次循環，後面什麼都不准按
-    if (currentListId && whitelist.includes(String(currentListId))) {
+    if (isMatched) {
       // --- 只有通過上面比對，才能執行下面的點擊邏輯 ---
       const video = document.querySelector("video");
       const playlist = document.querySelector("ytd-playlist-panel-renderer");
