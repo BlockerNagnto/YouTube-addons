@@ -1,6 +1,6 @@
 export default async function({ addon, msg }) {
     const check = () => {
-        if (document.querySelector('.interstitialViewModelButtonContainer')) {
+        if (document.querySelector('.interstitialViewModelButtonContainer, .ytp-error')) {
             const url = new URL(window.location.href);
             if (!url.searchParams.has('rco')) {
                 url.searchParams.set('rco', '1');
